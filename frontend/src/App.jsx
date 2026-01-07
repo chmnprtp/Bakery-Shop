@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import ProductCard from './components/ProductCard';
+import { getProducts } from './services/productService';
 
 function App() {
   const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/products')
-      .then(res => res.json())
+    getProducts()
       .then(data => {
         setProducts(data);
         setLoading(false);
       })
       .catch(err => {
         console.error('Error fetching products:', err);
+        setError(err.message);
         setLoading(false);
       });
   }, []);
+
+  const handleAddToCart = (product) => {
+    setCart(prev => [...prev, product]);
+    alert(`Added ${product.name} to order! Current items: ${cart.length + 1}`);
+  };
 
   return (
     <div className="min-h-screen p-8">
@@ -28,21 +37,21 @@ function App() {
         <section className="mb-12">
           <h2 className="text-3xl font-semibold mb-6 border-b-2 border-bakery-primary pb-2">Wholesale Product Catalog</h2>
           {loading ? (
-            <p>Loading products...</p>
+            <p className="text-center py-10">Loading products...</p>
+          ) : error ? (
+            <div className="bg-red-100 text-red-700 p-4 rounded-lg text-center">
+              Error: {error}
+            </div>
+          ) : products.length === 0 ? (
+            <p className="text-center py-10">No products found. Please add some to the database.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map(product => (
-                <div key={product.id} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
-                  <h3 className="text-2xl font-bold mb-2">{product.name}</h3>
-                  <div className="flex justify-between items-center mb-4 text-bakery-secondary">
-                    <span>Retail: ${product.price.toFixed(2)}</span>
-                    <span className="font-semibold text-green-700">Bulk: ${product.bulkPrice.toFixed(2)}</span>
-                  </div>
-                  <p className="text-sm italic mb-4">Min Order: {product.minOrder} units</p>
-                  <button className="w-full bg-bakery-primary text-white py-2 rounded-lg hover:bg-bakery-secondary transition-colors">
-                    Add to Bulk Order
-                  </button>
-                </div>
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                />
               ))}
             </div>
           )}

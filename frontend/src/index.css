@@ -1,6 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-bakery-primary: #4A3728;
+  --color-bakery-accent: #F3E5AB;
+}
 
 body {
   @apply bg-bakery-accent text-bakery-primary;

@@ -3,12 +3,16 @@ const express = require('express');
 const cors = require('cors');
 const { APP_CONFIG } = require('./src/constants');
 const productRoutes = require('./src/routes/productRoutes');
+const { swaggerUi, specs } = require('./src/config/swagger');
 
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
 app.get('/api/health', (req, res) => {
